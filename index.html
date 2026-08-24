@@ -15,16 +15,12 @@ body {
     color: white;
 }
 
-h1 {
-    margin-bottom: 5px;
-}
-
 button {
     padding: 10px 15px;
     border: 0;
     border-radius: 8px;
-    cursor: pointer;
     margin: 5px;
+    cursor: pointer;
 }
 
 input {
@@ -34,6 +30,7 @@ input {
     background: #222;
     color: white;
     width: calc(100% - 25px);
+    margin-bottom: 10px;
 }
 
 .card {
@@ -43,21 +40,14 @@ input {
     margin: 10px 0;
 }
 
-.tag {
-    display: inline-block;
-    background: #333;
-    padding: 5px 8px;
-    margin: 3px;
-    border-radius: 6px;
-}
-
 .small {
     color: #aaa;
     font-size: 14px;
 }
 
-#app {
-    display: none;
+#error {
+    color: #ff7777;
+    white-space: pre-wrap;
 }
 </style>
 </head>
@@ -65,42 +55,45 @@ input {
 <body>
 
 <h1>🎵 Spotify Tagger</h1>
-<p class="small">Organizador pessoal de músicas</p>
 
 <div id="login">
+    <p>Organizador pessoal de músicas.</p>
     <button onclick="login()">Entrar com Spotify</button>
 </div>
 
-<div id="app">
+<div id="app" style="display:none">
 
-    <h2>🔎 Descobrir músicas</h2>
+    <h2>🔎 Descobrir</h2>
 
     <input
         id="search"
         placeholder="Ex: genre:metal"
-        onkeydown="if(event.key==='Enter') searchSpotify()"
     >
 
-    <button onclick="searchSpotify()">Pesquisar</button>
+    <button onclick="searchSpotify()">
+        Pesquisar
+    </button>
 
     <div id="results"></div>
 
     <hr>
 
-    <h2>🏷️ Minhas tags</h2>
+    <h2>🏷️ Tags</h2>
 
     <input
         id="newTag"
         placeholder="Ex: Neo-Classical"
     >
 
-    <button onclick="addTag()">Adicionar tag</button>
+    <button onclick="addTag()">
+        Criar tag
+    </button>
 
     <div id="tags"></div>
 
     <hr>
 
-    <h2>🎵 Criar playlist</h2>
+    <h2>🎵 Playlist</h2>
 
     <input
         id="playlistName"
@@ -108,19 +101,22 @@ input {
     >
 
     <button onclick="createPlaylist()">
-        Criar playlist com a tag selecionada
+        Criar playlist da tag
     </button>
 
-    <div id="status"></div>
+    <p id="status"></p>
 
 </div>
 
+<div id="error"></div>
+
 <script>
 
-const CLIENT_ID = "980934f51c13469db6110b783f5c6f5b";
+const CLIENT_ID =
+    "980934f51c13469db6110b783f5c6f5b";
 
 const REDIRECT_URI =
-    "https://perroalio-dev.github.io/Spotfy-tagger/callback.html";
+    "https://perroalio-dev.github.io/spotify-tagger/";
 
 const SCOPES =
     "playlist-modify-public playlist-modify-private";
@@ -128,18 +124,20 @@ const SCOPES =
 let accessToken = null;
 
 let tags =
-    JSON.parse(localStorage.getItem("spotifyTags") || "{}");
+    JSON.parse(
+        localStorage.getItem("spotifyTags") || "{}"
+    );
 
 let selectedTag = null;
 
 
-/* -------------------------
+/* =========================
    PKCE
-------------------------- */
+========================= */
 
-function randomString(length) {
+function generateRandomString(length) {
 
-    const chars =
+    const characters =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
 
     let result = "";
@@ -147,10 +145,12 @@ function randomString(length) {
     for (let i = 0; i < length; i++) {
 
         result +=
-            chars.charAt(
-                Math.floor(Math.random() * chars.length)
+            characters.charAt(
+                Math.floor(
+                    Math.random() *
+                    characters.length
+                )
             );
-
     }
 
     return result;
@@ -172,10 +172,12 @@ async function sha256(plain) {
 }
 
 
-function base64url(input) {
+function base64url(buffer) {
 
     return btoa(
-        String.fromCharCode(...new Uint8Array(input))
+        String.fromCharCode(
+            ...new Uint8Array(buffer)
+        )
     )
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -183,41 +185,46 @@ function base64url(input) {
 }
 
 
-/* -------------------------
+/* =========================
    LOGIN
-------------------------- */
+========================= */
 
 async function login() {
 
     const verifier =
-        randomString(64);
+        generateRandomString(64);
 
     localStorage.setItem(
-        "code_verifier",
+        "spotify_code_verifier",
         verifier
     );
 
-    const hash =
+    const hashed =
         await sha256(verifier);
 
     const challenge =
-        base64url(hash);
+        base64url(hashed);
 
     const params =
         new URLSearchParams({
 
-            client_id: CLIENT_ID,
+            client_id:
+                CLIENT_ID,
 
-            response_type: "code",
+            response_type:
+                "code",
 
-            redirect_uri: REDIRECT_URI,
+            redirect_uri:
+                REDIRECT_URI,
 
-            code_challenge_method: "S256",
+            code_challenge_method:
+                "S256",
 
-            code_challenge: challenge,
+            code_challenge:
+                challenge,
 
-            scope: SCOPES
-
+            scope:
+                SCOPES
         });
 
     window.location =
@@ -226,43 +233,41 @@ async function login() {
 }
 
 
-/* -------------------------
+/* =========================
    TOKEN
-------------------------- */
+========================= */
 
-async function handleCallback() {
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-    const code =
-        params.get("code");
-
-    if (!code) return;
+async function exchangeCode(code) {
 
     const verifier =
         localStorage.getItem(
-            "code_verifier"
+            "spotify_code_verifier"
         );
+
+    if (!verifier) {
+
+        throw new Error(
+            "Código PKCE não encontrado. Tente entrar novamente."
+        );
+    }
 
     const body =
         new URLSearchParams({
 
-            client_id: CLIENT_ID,
+            client_id:
+                CLIENT_ID,
 
             grant_type:
                 "authorization_code",
 
-            code: code,
+            code:
+                code,
 
             redirect_uri:
                 REDIRECT_URI,
 
             code_verifier:
                 verifier
-
         });
 
     const response =
@@ -276,49 +281,83 @@ async function handleCallback() {
                         "application/x-www-form-urlencoded"
                 },
 
-                body: body
+                body:
+                    body
             }
         );
 
     const data =
         await response.json();
 
-    if (data.access_token) {
+    if (!response.ok) {
 
-        accessToken =
-            data.access_token;
-
-        localStorage.setItem(
-            "spotifyToken",
-            accessToken
+        throw new Error(
+            JSON.stringify(data, null, 2)
         );
-
-        window.history.replaceState(
-            {},
-            document.title,
-            REDIRECT_URI
-        );
-
-        showApp();
-
-    } else {
-
-        document.body.innerHTML +=
-            "<p>Erro ao entrar no Spotify.</p>";
-
-        console.log(data);
     }
+
+    accessToken =
+        data.access_token;
+
+    localStorage.setItem(
+        "spotify_access_token",
+        accessToken
+    );
+
+    localStorage.removeItem(
+        "spotify_code_verifier"
+    );
 }
 
 
-/* -------------------------
+/* =========================
+   CALLBACK
+========================= */
+
+async function handleCallback() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const error =
+        params.get("error");
+
+    if (error) {
+
+        throw new Error(
+            "Spotify recusou a autorização: "
+            + error
+        );
+    }
+
+    const code =
+        params.get("code");
+
+    if (!code) return;
+
+    await exchangeCode(code);
+
+    window.history.replaceState(
+        {},
+        document.title,
+        REDIRECT_URI
+    );
+}
+
+
+/* =========================
    SEARCH
-------------------------- */
+========================= */
 
 async function searchSpotify() {
 
     const query =
-        document.getElementById("search").value;
+        document
+            .getElementById("search")
+            .value
+            .trim();
 
     if (!query) return;
 
@@ -327,20 +366,21 @@ async function searchSpotify() {
             "https://api.spotify.com/v1/search?"
             + new URLSearchParams({
 
-                q: query,
+                q:
+                    query,
 
-                type: "track,artist",
+                type:
+                    "track,artist",
 
-                limit: 20
-
+                limit:
+                    "20"
             }),
 
             {
                 headers: {
-
                     Authorization:
-                        "Bearer " + accessToken
-
+                        "Bearer "
+                        + accessToken
                 }
             }
         );
@@ -348,89 +388,73 @@ async function searchSpotify() {
     const data =
         await response.json();
 
-    const container =
-        document.getElementById("results");
-
-    container.innerHTML = "";
-
-    if (data.tracks) {
-
-        data.tracks.items.forEach(track => {
-
-            const div =
-                document.createElement("div");
-
-            div.className = "card";
-
-            div.innerHTML = `
-
-                <strong>
-                    ${escapeHTML(track.name)}
-                </strong>
-
-                <div class="small">
-                    ${escapeHTML(
-                        track.artists
-                            .map(a => a.name)
-                            .join(", ")
-                    )}
-                </div>
-
-                <button
-                    onclick="tagTrack('${track.id}')"
-                >
-                    🏷️ Adicionar tag
-                </button>
-            `;
-
-            container.appendChild(div);
-
-        });
-
-    }
-
-}
-
-
-/* -------------------------
-   TAGGING
-------------------------- */
-
-function tagTrack(id) {
-
-    if (!selectedTag) {
-
-        alert(
-            "Primeiro selecione uma tag."
+    const results =
+        document.getElementById(
+            "results"
         );
 
-        return;
+    results.innerHTML = "";
+
+    if (
+        data.tracks &&
+        data.tracks.items
+    ) {
+
+        data.tracks.items.forEach(
+            track => {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "card";
+
+                card.innerHTML = `
+                    <strong>
+                        ${escapeHTML(track.name)}
+                    </strong>
+
+                    <div class="small">
+                        ${escapeHTML(
+                            track.artists
+                                .map(
+                                    a => a.name
+                                )
+                                .join(", ")
+                        )}
+                    </div>
+
+                    <button>
+                        🏷️ Adicionar à tag
+                    </button>
+                `;
+
+                card
+                    .querySelector("button")
+                    .onclick = () =>
+                        tagTrack(track.id);
+
+                results.appendChild(
+                    card
+                );
+            }
+        );
     }
-
-    if (!tags[selectedTag])
-        tags[selectedTag] = [];
-
-    if (!tags[selectedTag].includes(id))
-        tags[selectedTag].push(id);
-
-    localStorage.setItem(
-        "spotifyTags",
-        JSON.stringify(tags)
-    );
-
-    updateTags();
-
-    alert(
-        "Música adicionada à tag: "
-        + selectedTag
-    );
 }
 
+
+/* =========================
+   TAGS
+========================= */
 
 function addTag() {
 
     const input =
-        document.getElementById("newTag");
+        document.getElementById(
+            "newTag"
+        );
 
     const name =
         input.value.trim();
@@ -454,37 +478,84 @@ function addTag() {
 function updateTags() {
 
     const container =
-        document.getElementById("tags");
+        document.getElementById(
+            "tags"
+        );
 
     container.innerHTML = "";
 
-    Object.keys(tags).forEach(tag => {
+    Object.keys(tags).forEach(
+        tag => {
 
-        const button =
-            document.createElement("button");
+            const button =
+                document.createElement(
+                    "button"
+                );
 
-        button.innerText =
-            tag + " (" + tags[tag].length + ")";
+            button.textContent =
+                tag
+                + " ("
+                + tags[tag].length
+                + ")";
 
-        button.onclick = () => {
+            button.onclick = () => {
 
-            selectedTag = tag;
+                selectedTag =
+                    tag;
 
-            alert(
-                "Tag selecionada: " + tag
+                alert(
+                    "Tag selecionada: "
+                    + tag
+                );
+            };
+
+            container.appendChild(
+                button
             );
-
-        };
-
-        container.appendChild(button);
-
-    });
+        }
+    );
 }
 
 
-/* -------------------------
+function tagTrack(id) {
+
+    if (!selectedTag) {
+
+        alert(
+            "Crie e selecione uma tag primeiro."
+        );
+
+        return;
+    }
+
+    if (!tags[selectedTag])
+        tags[selectedTag] = [];
+
+    if (
+        !tags[selectedTag]
+            .includes(id)
+    ) {
+
+        tags[selectedTag].push(id);
+    }
+
+    localStorage.setItem(
+        "spotifyTags",
+        JSON.stringify(tags)
+    );
+
+    updateTags();
+
+    alert(
+        "Música adicionada à tag "
+        + selectedTag
+    );
+}
+
+
+/* =========================
    PLAYLIST
-------------------------- */
+========================= */
 
 async function createPlaylist() {
 
@@ -498,62 +569,67 @@ async function createPlaylist() {
     }
 
     const name =
-        document.getElementById(
-            "playlistName"
-        ).value
+        document
+            .getElementById(
+                "playlistName"
+            )
+            .value
+            .trim()
         || selectedTag;
 
-    const profile =
+    const response =
         await fetch(
-            "https://api.spotify.com/v1/me",
-            {
-                headers: {
-                    Authorization:
-                        "Bearer " + accessToken
-                }
-            }
-        );
-
-    const user =
-        await profile.json();
-
-    const playlistResponse =
-        await fetch(
-            `https://api.spotify.com/v1/users/${user.id}/playlists`,
+            "https://api.spotify.com/v1/me/playlists",
             {
                 method: "POST",
 
                 headers: {
 
                     Authorization:
-                        "Bearer " + accessToken,
+                        "Bearer "
+                        + accessToken,
 
                     "Content-Type":
                         "application/json"
                 },
 
-                body: JSON.stringify({
+                body:
+                    JSON.stringify({
 
-                    name: name,
+                        name:
+                            name,
 
-                    public: false,
+                        public:
+                            false,
 
-                    description:
-                        "Criada pelo meu Spotify Tagger"
-
-                })
+                        description:
+                            "Criada pelo Spotify Tagger"
+                    })
             }
         );
 
     const playlist =
-        await playlistResponse.json();
+        await response.json();
+
+    if (!response.ok) {
+
+        throw new Error(
+            JSON.stringify(
+                playlist,
+                null,
+                2
+            )
+        );
+    }
 
     const ids =
         tags[selectedTag];
 
     const uris =
         ids.map(
-            id => "spotify:track:" + id
+            id =>
+                "spotify:track:"
+                + id
         );
 
     for (
@@ -570,43 +646,92 @@ async function createPlaylist() {
                 headers: {
 
                     Authorization:
-                        "Bearer " + accessToken,
+                        "Bearer "
+                        + accessToken,
 
                     "Content-Type":
                         "application/json"
                 },
 
-                body: JSON.stringify({
+                body:
+                    JSON.stringify({
 
-                    uris:
-                        uris.slice(i, i + 100)
-
-                })
+                        uris:
+                            uris.slice(
+                                i,
+                                i + 100
+                            )
+                    })
             }
         );
-
     }
 
     document.getElementById(
         "status"
-    ).innerHTML =
-        `<p>✅ Playlist criada!</p>`;
-
+    ).textContent =
+        "✅ Playlist criada no Spotify!";
 }
 
 
-/* -------------------------
-   UTILS
-------------------------- */
+/* =========================
+   UTIL
+========================= */
 
 function escapeHTML(text) {
 
     const div =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    div.textContent = text;
+    div.textContent =
+        text;
 
     return div.innerHTML;
+}
+
+
+/* =========================
+   START
+========================= */
+
+async function start() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "spotify_access_token"
+            );
+
+        if (saved) {
+
+            accessToken =
+                saved;
+
+            showApp();
+
+            return;
+        }
+
+        await handleCallback();
+
+        if (accessToken) {
+
+            showApp();
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById(
+            "error"
+        ).textContent =
+            "Erro:\n"
+            + error.message;
+    }
 }
 
 
@@ -614,39 +739,21 @@ function showApp() {
 
     document.getElementById(
         "login"
-    ).style.display = "none";
+    ).style.display =
+        "none";
 
     document.getElementById(
         "app"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
     updateTags();
 }
 
 
-/* -------------------------
-   START
-------------------------- */
-
-const savedToken =
-    localStorage.getItem(
-        "spotifyToken"
-    );
-
-if (savedToken) {
-
-    accessToken =
-        savedToken;
-
-    showApp();
-
-} else {
-
-    handleCallback();
-
-}
+start();
 
 </script>
 
 </body>
-      </html>
+</html>
