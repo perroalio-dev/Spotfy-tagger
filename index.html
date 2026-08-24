@@ -352,64 +352,53 @@ async function handleCallback() {
 ========================= */
 
 async function searchSpotify() {
+    const query = document.getElementById("search").value.trim();
+    const results = document.getElementById("results");
 
-    const query =
-        document
-            .getElementById("search")
-            .value
-            .trim();
+    if (!query) {
+        results.innerHTML = "<p>Digite alguma coisa para pesquisar.</p>";
+        return;
+    }
 
-    if (!query) return;
+    results.innerHTML = "<p>🔎 Pesquisando...</p>";
 
-    const response =
-        await fetch(
-            "https://api.spotify.com/v1/search?"
-            + new URLSearchParams({
+    try {
+        if (!accessToken) {
+            throw new Error("Não há token do Spotify. Faça login novamente.");
+        }
 
-                q:
-                    query,
-
-                type:
-                    "track,artist",
-
-                limit:
-                    "20"
+        const response = await fetch(
+            "https://api.spotify.com/v1/search?" +
+            new URLSearchParams({
+                q: query,
+                type: "track,artist",
+                limit: "20"
             }),
-
             {
                 headers: {
-                    Authorization:
-                        "Bearer "
-                        + accessToken
+                    Authorization: "Bearer " + accessToken
                 }
             }
         );
 
-    const data =
-        await response.json();
+        const data = await response.json();
 
-    const results =
-        document.getElementById(
-            "results"
-        );
+        if (!response.ok) {
+            throw new Error(
+                "Spotify API (" +
+                response.status +
+                "): " +
+                JSON.stringify(data)
+            );
+        }
 
-    results.innerHTML = "";
+        results.innerHTML = "";
 
-    if (
-        data.tracks &&
-        data.tracks.items
-    ) {
+        if (data.tracks && data.tracks.items.length > 0) {
+            data.tracks.items.forEach(track => {
+                const card = document.createElement("div");
 
-        data.tracks.items.forEach(
-            track => {
-
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-                card.className =
-                    "card";
+                card.className = "card";
 
                 card.innerHTML = `
                     <strong>
@@ -419,9 +408,7 @@ async function searchSpotify() {
                     <div class="small">
                         ${escapeHTML(
                             track.artists
-                                .map(
-                                    a => a.name
-                                )
+                                .map(a => a.name)
                                 .join(", ")
                         )}
                     </div>
@@ -431,20 +418,28 @@ async function searchSpotify() {
                     </button>
                 `;
 
-                card
-                    .querySelector("button")
-                    .onclick = () =>
-                        tagTrack(track.id);
+                card.querySelector("button").onclick = () =>
+                    tagTrack(track.id);
 
-                results.appendChild(
-                    card
-                );
-            }
-        );
+                results.appendChild(card);
+            });
+        } else {
+            results.innerHTML =
+                "<p>Nenhuma música encontrada.</p>";
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        results.innerHTML = `
+            <div class="card">
+                <strong>❌ Erro</strong>
+                <p>${escapeHTML(error.message)}</p>
+            </div>
+        `;
     }
 }
-
-
 /* =========================
    TAGS
 ========================= */
