@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Spotify Tagger</title>
+</head>
+<body>
+<p>Autenticação concluída. Aguarde...</p>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
+
+if (code) {
+    window.location.href =
+        "/spotify-tagger/?code=" +
+        encodeURIComponent(code);
+} else {
+    document.body.innerHTML =
+        "<h2>Erro na autenticação.</h2>";
+}
+</script>
+
+</body>
+</html>
