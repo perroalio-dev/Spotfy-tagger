@@ -1,167 +1,165 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Spotify Tagger</title>
+    <title>Spotify Tagger</title>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        max-width: 900px;
-        margin: auto;
-        padding: 20px;
-        background: #111;
-        color: white;
-    }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: #111;
+            color: white;
+        }
 
-    h1, h2, h3 {
-        margin-bottom: 10px;
-    }
+        h1, h2, h3 {
+            margin-bottom: 10px;
+        }
 
-    button {
-        padding: 10px 15px;
-        border: 0;
-        border-radius: 8px;
-        margin: 5px;
-        cursor: pointer;
-    }
+        input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            margin: 6px 0;
+            border-radius: 8px;
+            border: 1px solid #555;
+            background: #222;
+            color: white;
+        }
 
-    input {
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #555;
-        background: #222;
-        color: white;
-        width: calc(100% - 25px);
-        margin-bottom: 10px;
-    }
+        button {
+            padding: 10px 15px;
+            margin: 6px 3px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
 
-    .card {
-        background: #1d1d1d;
-        padding: 15px;
-        border-radius: 12px;
-        margin: 10px 0;
-    }
+        .card {
+            background: #1d1d1d;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 12px;
+        }
 
-    .genre {
-        display: inline-block;
-        background: #333;
-        padding: 5px 8px;
-        margin: 3px;
-        border-radius: 6px;
-        font-size: 13px;
-    }
+        .genre {
+            display: inline-block;
+            background: #333;
+            padding: 5px 8px;
+            margin: 3px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
 
-    .small {
-        color: #aaa;
-        font-size: 14px;
-    }
+        a {
+            color: #7dd3fc;
+        }
 
-    #error {
-        color: #ff7777;
-        white-space: pre-wrap;
-    }
+        #error {
+            color: #ff7777;
+            white-space: pre-wrap;
+        }
 
-    a {
-        color: #7dd3fc;
-    }
-</style>
+        hr {
+            margin: 30px 0;
+            border: 0;
+            border-top: 1px solid #444;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>🎵 Spotify Tagger</h1>
+    <h1>🎵 Spotify Tagger</h1>
 
-<!-- LOGIN -->
+    <!-- LOGIN -->
 
-<div id="login">
+    <div id="login">
 
-    <p>
-        Descubra artistas pela interseção dos gêneros do Spotify.
-    </p>
+        <p>
+            Organizador pessoal de músicas.
+        </p>
 
-    <button onclick="login()">
-        Entrar com Spotify
-    </button>
+        <button onclick="login()">
+            Entrar com Spotify
+        </button>
 
-</div>
-
-
-<!-- APP -->
-
-<div id="app" style="display:none">
-
-    <h2>🔎 Interseção de gêneros</h2>
-
-    <p>
-        Encontre artistas que possuem
-        <strong>os dois gêneros</strong>.
-    </p>
-
-    <input
-        id="genre1"
-        placeholder="Primeiro gênero do Spotify"
-    >
-
-    <input
-        id="genre2"
-        placeholder="Segundo gênero do Spotify"
-    >
-
-    <button onclick="searchIntersection()">
-        🔎 Encontrar interseção
-    </button>
-
-    <div id="results"></div>
+    </div>
 
 
-    <hr>
+    <!-- APLICATIVO -->
+
+    <div id="app" style="display:none">
+
+        <h2>🔎 Interseção de gêneros</h2>
+
+        <p>
+            Encontre artistas que possuem
+            <strong>os dois gêneros</strong>.
+        </p>
+
+        <input
+            id="genre1"
+            placeholder="Primeiro gênero"
+        >
+
+        <input
+            id="genre2"
+            placeholder="Segundo gênero"
+        >
+
+        <button onclick="searchIntersection()">
+            🔎 Encontrar interseção
+        </button>
+
+        <div id="results"></div>
 
 
-    <!-- TAGS -->
-
-    <h2>🏷️ Minhas tags</h2>
-
-    <input
-        id="newTag"
-        placeholder="Ex: Neo-Classical"
-    >
-
-    <button onclick="addTag()">
-        Criar tag
-    </button>
-
-    <div id="tags"></div>
+        <hr>
 
 
-    <hr>
+        <h2>🏷️ Minhas tags</h2>
+
+        <input
+            id="newTag"
+            placeholder="Nome da tag"
+        >
+
+        <button onclick="addTag()">
+            Criar tag
+        </button>
+
+        <div id="tags"></div>
 
 
-    <!-- PLAYLIST -->
-
-    <h2>🎵 Criar playlist</h2>
-
-    <input
-        id="playlistName"
-        placeholder="Nome da playlist"
-    >
-
-    <button onclick="createPlaylist()">
-        Criar playlist da tag
-    </button>
-
-    <p id="status"></p>
-
-</div>
+        <hr>
 
 
-<div id="error"></div>
+        <h2>🎵 Playlist</h2>
+
+        <input
+            id="playlistName"
+            placeholder="Nome da playlist"
+        >
+
+        <button onclick="createPlaylist()">
+            Criar playlist
+        </button>
+
+        <p id="status"></p>
+
+    </div>
+
+
+    <div id="error"></div>
 
 
 <script>
-
 
 /* =====================================================
    CONFIGURAÇÃO
@@ -170,18 +168,13 @@
 const CLIENT_ID =
     "980934f51c13469db6110b783f5c6f5b";
 
-
 const REDIRECT_URI =
     "https://perroalio-dev.github.io/Spotfy-tagger/";
-
 
 const SCOPES =
     "playlist-modify-public playlist-modify-private";
 
-
 let accessToken = null;
-
-let selectedTag = null;
 
 
 /* =====================================================
@@ -192,6 +185,8 @@ let tags =
     JSON.parse(
         localStorage.getItem("spotifyTags") || "{}"
     );
+
+let selectedTag = null;
 
 
 /* =====================================================
@@ -209,8 +204,7 @@ function generateRandomString(length) {
 
         result += characters.charAt(
             Math.floor(
-                Math.random() *
-                characters.length
+                Math.random() * characters.length
             )
         );
 
@@ -228,7 +222,7 @@ async function sha256(plain) {
     const data =
         encoder.encode(plain);
 
-    return await crypto.subtle.digest(
+    return crypto.subtle.digest(
         "SHA-256",
         data
     );
@@ -258,20 +252,16 @@ async function login() {
     const verifier =
         generateRandomString(64);
 
-
     localStorage.setItem(
         "spotify_code_verifier",
         verifier
     );
 
-
     const hashed =
         await sha256(verifier);
 
-
     const challenge =
         base64url(hashed);
-
 
     const params =
         new URLSearchParams({
@@ -296,7 +286,6 @@ async function login() {
 
         });
 
-
     window.location =
         "https://accounts.spotify.com/authorize?"
         + params.toString();
@@ -305,7 +294,7 @@ async function login() {
 
 
 /* =====================================================
-   TROCAR CODE POR TOKEN
+   TROCAR CÓDIGO POR TOKEN
 ===================================================== */
 
 async function exchangeCode(code) {
@@ -315,7 +304,6 @@ async function exchangeCode(code) {
             "spotify_code_verifier"
         );
 
-
     if (!verifier) {
 
         throw new Error(
@@ -323,7 +311,6 @@ async function exchangeCode(code) {
         );
 
     }
-
 
     const body =
         new URLSearchParams({
@@ -345,7 +332,6 @@ async function exchangeCode(code) {
 
         });
 
-
     const response =
         await fetch(
             "https://accounts.spotify.com/api/token",
@@ -364,33 +350,27 @@ async function exchangeCode(code) {
             }
         );
 
-
     const data =
         await response.json();
-
 
     if (!response.ok) {
 
         throw new Error(
-            JSON.stringify(
-                data,
-                null,
-                2
-            )
+            "Spotify Login ("
+            + response.status
+            + "): "
+            + JSON.stringify(data)
         );
 
     }
 
-
     accessToken =
         data.access_token;
-
 
     localStorage.setItem(
         "spotify_access_token",
         accessToken
     );
-
 
     localStorage.removeItem(
         "spotify_code_verifier"
@@ -400,7 +380,7 @@ async function exchangeCode(code) {
 
 
 /* =====================================================
-   CALLBACK
+   CALLBACK DO SPOTIFY
 ===================================================== */
 
 async function handleCallback() {
@@ -410,38 +390,34 @@ async function handleCallback() {
             window.location.search
         );
 
-
     const error =
         params.get("error");
-
 
     if (error) {
 
         throw new Error(
-            "Spotify recusou a autorização: "
+            "Spotify recusou o login: "
             + error
         );
 
     }
 
-
     const code =
         params.get("code");
 
-
     if (!code) {
-        return;
+        return false;
     }
 
-
     await exchangeCode(code);
-
 
     window.history.replaceState(
         {},
         document.title,
         REDIRECT_URI
     );
+
+    return true;
 
 }
 
@@ -481,9 +457,25 @@ async function searchArtists(query) {
             }
         );
 
-
     const data =
         await response.json();
+
+
+    /* TOKEN INVÁLIDO */
+
+    if (response.status === 401) {
+
+        accessToken = null;
+
+        localStorage.removeItem(
+            "spotify_access_token"
+        );
+
+        throw new Error(
+            "LOGIN_EXPIRED"
+        );
+
+    }
 
 
     if (!response.ok) {
@@ -504,242 +496,355 @@ async function searchArtists(query) {
 
 
 /* =====================================================
-   INTERSEÇÃO
-=======================================================*/
- async function searchIntersection() {
+   INTERSEÇÃO DE GÊNEROS
+===================================================== */
 
-    const genre1 = document
-        .getElementById("genre1")
-        .value
-        .trim()
-        .toLowerCase();
+async function searchIntersection() {
 
-    const genre2 = document
-        .getElementById("genre2")
-        .value
-        .trim()
-        .toLowerCase();
+    const genre1 =
+        document
+            .getElementById("genre1")
+            .value
+            .trim()
+            .toLowerCase();
+
+    const genre2 =
+        document
+            .getElementById("genre2")
+            .value
+            .trim()
+            .toLowerCase();
 
     const results =
-        document.getElementById("results");
+        document.getElementById(
+            "results"
+        );
+
 
     if (!genre1 || !genre2) {
+
         results.innerHTML =
             "<p>Digite os dois gêneros.</p>";
+
         return;
+
     }
 
-    /*
-     * Verifica se temos um token.
-     */
-    if (!accessToken) {
 
-        localStorage.removeItem(
-            "spotify_access_token"
-        );
+    if (!accessToken) {
 
         results.innerHTML = `
             <div class="card">
-                <strong>🔑 Login necessário</strong>
-                <p>Faça login novamente com o Spotify.</p>
+
+                <strong>
+                    🔑 Login necessário
+                </strong>
+
+                <p>
+                    Entre novamente com o Spotify.
+                </p>
+
                 <button onclick="login()">
-                    Entrar novamente
+                    Entrar com Spotify
                 </button>
+
             </div>
         `;
 
         return;
+
     }
 
+
     results.innerHTML =
-        "<p>🔎 Procurando artistas...</p>";
+        "<p>🔎 Procurando...</p>";
+
 
     try {
 
-        const searches = await Promise.all([
-            searchArtists(genre1),
-            searchArtists(genre2)
-        ]);
+        /*
+         * Procuramos candidatos nos
+         * dois gêneros.
+         */
 
-        const artists = new Map();
+        const searches =
+            await Promise.all([
+
+                searchArtists(genre1),
+
+                searchArtists(genre2)
+
+            ]);
+
+
+        /*
+         * Remove artistas duplicados.
+         */
+
+        const artists =
+            new Map();
+
 
         searches
             .flat()
             .forEach(artist => {
+
                 artists.set(
                     artist.id,
                     artist
                 );
+
             });
+
+
+        /*
+         * Consulta os gêneros de cada artista.
+         */
 
         const detailedArtists =
             await Promise.all(
 
                 [...artists.values()]
-                    .map(async artist => {
+                    .map(
+                        async artist => {
 
-                        const response =
-                            await fetch(
-                                "https://api.spotify.com/v1/artists/"
-                                + artist.id,
-                                {
-                                    headers: {
-                                        Authorization:
-                                            "Bearer "
-                                            + accessToken
+                            const response =
+                                await fetch(
+                                    "https://api.spotify.com/v1/artists/"
+                                    + artist.id,
+                                    {
+
+                                        headers: {
+
+                                            Authorization:
+                                                "Bearer "
+                                                + accessToken
+
+                                        }
+
                                     }
-                                }
-                            );
+                                );
 
-                        /*
-                         * Token expirado/inválido.
-                         */
-                        if (response.status === 401) {
 
-                            localStorage.removeItem(
-                                "spotify_access_token"
-                            );
+                            if (response.status === 401) {
 
-                            accessToken = null;
+                                accessToken = null;
 
-                            throw new Error(
-                                "TOKEN_EXPIRED"
-                            );
+                                localStorage.removeItem(
+                                    "spotify_access_token"
+                                );
+
+                                throw new Error(
+                                    "LOGIN_EXPIRED"
+                                );
+
+                            }
+
+
+                            if (!response.ok) {
+                                return null;
+                            }
+
+
+                            return response.json();
+
                         }
+                    )
 
-                        if (!response.ok) {
-                            return null;
-                        }
-
-                        return await response.json();
-                    })
             );
 
+
+        /*
+         * INTERSEÇÃO:
+         *
+         * O artista precisa ter
+         * OS DOIS gêneros.
+         */
+
         const matches =
-            detailedArtists.filter(artist => {
+            detailedArtists.filter(
+                artist => {
 
-                if (
-                    !artist ||
-                    !artist.genres
-                ) {
-                    return false;
-                }
+                    if (
+                        !artist ||
+                        !artist.genres
+                    ) {
+                        return false;
+                    }
 
-                const genres =
-                    artist.genres.map(
-                        g => g.toLowerCase()
+
+                    const genres =
+                        artist.genres.map(
+                            genre =>
+                                genre.toLowerCase()
+                        );
+
+
+                    return (
+
+                        genres.includes(
+                            genre1
+                        )
+
+                        &&
+
+                        genres.includes(
+                            genre2
+                        )
+
                     );
 
-                return (
-                    genres.includes(genre1) &&
-                    genres.includes(genre2)
-                );
-            });
+                }
+            );
+
 
         results.innerHTML = "";
+
 
         if (matches.length === 0) {
 
             results.innerHTML = `
                 <div class="card">
-                    <strong>Nenhum resultado</strong>
+
+                    <strong>
+                        Nenhum resultado
+                    </strong>
+
                     <p>
                         Nenhum artista encontrado
-                        com os dois gêneros.
+                        com os dois gêneros exatos.
                     </p>
+
                 </div>
             `;
 
             return;
+
         }
 
-        matches.forEach(artist => {
 
-            const card =
-                document.createElement("div");
+        matches.forEach(
+            artist => {
 
-            card.className = "card";
+                const card =
+                    document.createElement(
+                        "div"
+                    );
 
-            const genresHTML =
-                artist.genres
-                    .map(
-                        genre =>
-                            `<span class="genre">
-                                ${escapeHTML(genre)}
-                            </span>`
-                    )
-                    .join("");
 
-            card.innerHTML = `
-                <h3>
-                    ${escapeHTML(artist.name)}
-                </h3>
+                card.className =
+                    "card";
 
-                <div>
-                    ${genresHTML}
-                </div>
 
-                <p>
-                    <a
-                        href="${artist.external_urls.spotify}"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        Abrir no Spotify
-                    </a>
-                </p>
+                const genresHTML =
+                    artist.genres
+                        .map(
+                            genre =>
+                                `<span class="genre">
+                                    ${escapeHTML(genre)}
+                                </span>`
+                        )
+                        .join("");
 
-                <button>
-                    🏷️ Adicionar à tag
-                </button>
-            `;
 
-            card
-                .querySelector("button")
-                .onclick = () =>
-                    addArtistToTag(artist);
+                card.innerHTML = `
 
-            results.appendChild(card);
-        });
+                    <h3>
+                        ${escapeHTML(
+                            artist.name
+                        )}
+                    </h3>
+
+                    <div>
+                        ${genresHTML}
+                    </div>
+
+                    <p>
+                        <a
+                            href="${artist.external_urls.spotify}"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            Abrir no Spotify
+                        </a>
+                    </p>
+
+                    <button>
+                        🏷️ Adicionar à tag
+                    </button>
+
+                `;
+
+
+                card
+                    .querySelector("button")
+                    .onclick =
+                        () =>
+                            addArtistToTag(
+                                artist
+                            );
+
+
+                results.appendChild(
+                    card
+                );
+
+            }
+        );
+
 
     } catch (error) {
 
-        console.error(error);
 
-        if (error.message === "TOKEN_EXPIRED") {
+        if (
+            error.message ===
+            "LOGIN_EXPIRED"
+        ) {
 
             results.innerHTML = `
                 <div class="card">
-                    <strong>🔑 Sessão expirada</strong>
+
+                    <strong>
+                        🔑 Sessão expirada
+                    </strong>
 
                     <p>
                         Seu login do Spotify expirou.
-                        Faça login novamente.
+                        Entre novamente.
                     </p>
 
                     <button onclick="login()">
                         Entrar novamente
                     </button>
+
                 </div>
             `;
 
             return;
+
         }
+
 
         results.innerHTML = `
             <div class="card">
-                <strong>❌ Erro</strong>
+
+                <strong>
+                    ❌ Erro
+                </strong>
 
                 <p>
                     ${escapeHTML(
                         error.message
                     )}
                 </p>
+
             </div>
         `;
+
     }
+
 }
-        
+
 
 /* =====================================================
    TAGS
@@ -751,7 +856,6 @@ function addTag() {
         document.getElementById(
             "newTag"
         );
-
 
     const name =
         input.value.trim();
@@ -771,9 +875,7 @@ function addTag() {
 
     saveTags();
 
-
     input.value = "";
-
 
     updateTags();
 
@@ -786,7 +888,6 @@ function updateTags() {
         document.getElementById(
             "tags"
         );
-
 
     container.innerHTML = "";
 
@@ -807,18 +908,18 @@ function updateTags() {
                 + ")";
 
 
-            button.onclick = () => {
+            button.onclick =
+                () => {
 
-                selectedTag =
-                    tag;
+                    selectedTag =
+                        tag;
 
+                    alert(
+                        "Tag selecionada: "
+                        + tag
+                    );
 
-                alert(
-                    "Tag selecionada: "
-                    + tag
-                );
-
-            };
+                };
 
 
             container.appendChild(
@@ -835,10 +936,11 @@ function addArtistToTag(artist) {
     if (!selectedTag) {
 
         alert(
-            "Crie e selecione uma tag primeiro."
+            "Crie uma tag e selecione ela primeiro."
         );
 
         return;
+
     }
 
 
@@ -848,10 +950,6 @@ function addArtistToTag(artist) {
 
     }
 
-
-    /*
-     * Guardamos o ID do artista.
-     */
 
     if (
         !tags[selectedTag]
@@ -867,13 +965,12 @@ function addArtistToTag(artist) {
 
     saveTags();
 
-
     updateTags();
 
 
     alert(
         artist.name
-        + " adicionado à tag "
+        + " foi adicionado à tag "
         + selectedTag
     );
 
@@ -896,6 +993,17 @@ function saveTags() {
 
 async function createPlaylist() {
 
+    if (!accessToken) {
+
+        alert(
+            "Entre com o Spotify primeiro."
+        );
+
+        return;
+
+    }
+
+
     if (!selectedTag) {
 
         alert(
@@ -903,6 +1011,7 @@ async function createPlaylist() {
         );
 
         return;
+
     }
 
 
@@ -916,94 +1025,107 @@ async function createPlaylist() {
         || selectedTag;
 
 
-    const response =
-        await fetch(
-            "https://api.spotify.com/v1/me/playlists",
+    try {
 
-            {
+        const response =
+            await fetch(
+                "https://api.spotify.com/v1/me/playlists",
+                {
 
-                method: "POST",
+                    method: "POST",
 
-                headers: {
+                    headers: {
 
-                    Authorization:
-                        "Bearer "
-                        + accessToken,
+                        Authorization:
+                            "Bearer "
+                            + accessToken,
 
-                    "Content-Type":
-                        "application/json"
+                        "Content-Type":
+                            "application/json"
 
-                },
+                    },
 
-                body:
-                    JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                        name:
-                            name,
+                            name:
+                                name,
 
-                        public:
-                            false,
+                            public:
+                                false,
 
-                        description:
-                            "Criada pelo Spotify Tagger"
+                            description:
+                                "Criada pelo Spotify Tagger"
 
-                    })
+                        })
 
-            }
-        );
-
-
-    const playlist =
-        await response.json();
+                }
+            );
 
 
-    if (!response.ok) {
+        if (response.status === 401) {
 
-        throw new Error(
-            JSON.stringify(
-                playlist,
-                null,
-                2
-            )
-        );
+            accessToken = null;
+
+            localStorage.removeItem(
+                "spotify_access_token"
+            );
+
+            alert(
+                "Sua sessão expirou. Entre novamente."
+            );
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                JSON.stringify(
+                    data
+                )
+            );
+
+        }
+
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "✅ Playlist criada: "
+            + data.name;
+
+
+    } catch (error) {
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "❌ "
+            + error.message;
 
     }
-
-
-    /*
-     * As tags atualmente guardam
-     * IDs de artistas.
-     *
-     * Para criar uma playlist precisamos
-     * transformar esses artistas em músicas.
-     *
-     * Por enquanto mostramos aviso.
-     */
-
-    document.getElementById(
-        "status"
-    ).textContent =
-        "✅ Playlist criada: "
-        + playlist.name;
 
 }
 
 
 /* =====================================================
-   ESCAPAR HTML
+   SEGURANÇA HTML
 ===================================================== */
 
 function escapeHTML(text) {
 
     const div =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     div.textContent =
         text;
-
 
     return div.innerHTML;
 
@@ -1011,7 +1133,7 @@ function escapeHTML(text) {
 
 
 /* =====================================================
-   MOSTRAR APP
+   MOSTRAR APLICATIVO
 ===================================================== */
 
 function showApp() {
@@ -1021,12 +1143,10 @@ function showApp() {
     ).style.display =
         "none";
 
-
     document.getElementById(
         "app"
     ).style.display =
         "block";
-
 
     updateTags();
 
@@ -1037,20 +1157,19 @@ function showApp() {
    INICIALIZAÇÃO
 ===================================================== */
 
-async function start() {
+async function initialize() {
 
     try {
 
-        const saved =
-            localStorage.getItem(
-                "spotify_access_token"
-            );
+        /*
+         * Primeiro verifica se estamos
+         * voltando do Spotify.
+         */
 
+        const loggedIn =
+            await handleCallback();
 
-        if (saved) {
-
-            accessToken =
-                saved;
+        if (loggedIn) {
 
             showApp();
 
@@ -1059,20 +1178,26 @@ async function start() {
         }
 
 
-        await handleCallback();
+        /*
+         * Se já existe um token salvo,
+         * usamos ele.
+         */
 
+        const savedToken =
+            localStorage.getItem(
+                "spotify_access_token"
+            );
 
-        if (accessToken) {
+        if (savedToken) {
+
+            accessToken =
+                savedToken;
 
             showApp();
 
         }
 
-
     } catch (error) {
-
-        console.error(error);
-
 
         document.getElementById(
             "error"
@@ -1085,9 +1210,14 @@ async function start() {
 }
 
 
-start();
+/* =====================================================
+   INICIAR
+===================================================== */
+
+initialize();
 
 </script>
 
 </body>
+
 </html>
